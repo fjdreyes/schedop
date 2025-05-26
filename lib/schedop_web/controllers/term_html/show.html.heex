@@ -1,0 +1,16 @@
+<.header>
+  Term {@term.id}
+  <:subtitle>This is a term record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/terms/#{@term}/edit"}>
+      <.button>Edit term</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="UID">{@term.uid}</:item>
+  <:item title="Name">{@term.name}</:item>
+</.list>
+
+<.back navigate={~p"/terms"}>Back to terms</.back>
