@@ -20,6 +20,7 @@ defmodule SchedopWeb.Router do
     get "/", PageController, :home
 
     resources "/terms", TermController
+    post "/populate_terms", TermController, :populate
   end
 
   # Other scopes may use custom stacks.

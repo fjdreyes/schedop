@@ -1,9 +1,14 @@
 <.header>
   Listing Terms
   <:actions>
-    <.link href={~p"/terms/new"}>
-      <.button>New Term</.button>
-    </.link>
+    <div class="flex items-center gap-2">
+      <.form for={nil} action={~p"/populate_terms"}>
+        <.button>Populate Terms</.button>
+      </.form>
+      <.link href={~p"/terms/new"}>
+        <.button>New Term</.button>
+      </.link>
+    </div>
   </:actions>
 </.header>
 

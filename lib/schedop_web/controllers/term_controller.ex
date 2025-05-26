@@ -59,4 +59,12 @@ defmodule SchedopWeb.TermController do
     |> put_flash(:info, "Term deleted successfully.")
     |> redirect(to: ~p"/terms")
   end
+
+  def populate(conn, _params) do
+    Terms.populate_terms()
+
+    conn
+    |> put_flash(:info, "Terms populated successfully.")
+    |> redirect(to: ~p"/terms")
+  end
 end

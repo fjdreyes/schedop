@@ -101,4 +101,24 @@ defmodule Schedop.Terms do
   def change_term(%Term{} = term, attrs \\ %{}) do
     Term.changeset(term, attrs)
   end
+
+  def populate_terms do
+    terms = retrieve_terms()
+
+    Enum.each(terms, fn term ->
+      create_term(term)
+    end)
+  end
+
+  defp retrieve_terms do
+    Req.get!("https://crs.upd.edu.ph/schedule/").body
+    |> Floki.parse_document!()
+    |> Floki.find("#txt_term > option")
+    |> Enum.map(fn term ->
+      %{
+        uid: Floki.attribute(term, "value") |> List.first(),
+        name: Floki.text(term)
+      }
+    end)
+  end
 end
