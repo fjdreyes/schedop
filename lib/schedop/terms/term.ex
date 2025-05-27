@@ -5,6 +5,7 @@ defmodule Schedop.Terms.Term do
   schema "terms" do
     field :name, :string
     field :uid, :integer
+    has_many :schedules, Schedop.Schedules.Schedule
 
     timestamps(type: :utc_datetime)
   end

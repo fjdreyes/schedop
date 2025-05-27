@@ -21,6 +21,8 @@ defmodule SchedopWeb.Router do
 
     resources "/terms", TermController
     post "/populate_terms", TermController, :populate
+
+    resources "/schedules", ScheduleController
   end
 
   # Other scopes may use custom stacks.

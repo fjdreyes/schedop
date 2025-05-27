@@ -1,0 +1,16 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+  <.input field={f[:name]} type="text" label="Name" />
+  <.input field={f[:subjects]} type="array" label="Subjects" />
+  <.input
+    field={f[:term_id]}
+    type="select"
+    label="Term"
+    options={Schedop.Terms.terms_for_form_options()}
+  />
+  <:actions>
+    <.button>Save Schedule</.button>
+  </:actions>
+</.simple_form>

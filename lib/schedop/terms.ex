@@ -102,6 +102,13 @@ defmodule Schedop.Terms do
     Term.changeset(term, attrs)
   end
 
+  def terms_for_form_options do
+    Term
+    |> select([t], {t.name, t.id})
+    |> order_by([t], desc: t.uid)
+    |> Repo.all()
+  end
+
   def populate_terms do
     terms = retrieve_terms()
 

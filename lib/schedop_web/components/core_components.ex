@@ -276,7 +276,7 @@ defmodule SchedopWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file month number password
-               range search select tel text textarea time url week)
+               range search select tel text textarea time url week array)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -364,6 +364,11 @@ defmodule SchedopWeb.CoreComponents do
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
+  end
+
+  def input(%{type: "array", value: value} = assigns) do
+    Map.merge(assigns, %{type: "textarea", value: Enum.join(value || [], "\n")})
+    |> input()
   end
 
   # All other inputs text, datetime-local, url, password, etc. are handled here...
