@@ -1,0 +1,34 @@
+<SchedopWeb.ScheduleHTML.schedule_tabs current_tab="classes" schedule={@schedule} />
+
+<.header>
+  Available Classes for Schedule {@schedule.id}
+  <:subtitle>
+    These are the available classes for your chosen subjects.
+  </:subtitle>
+  <:actions>
+    <.form for={nil} action={~p"/schedules/#{@schedule}/classes"}>
+      <.button>Populate classes</.button>
+    </.form>
+  </:actions>
+</.header>
+
+<div class="mt-12 flex flex-col gap-6">
+  <%= for {subject, classes} <- @subjects do %>
+    <div class="rounded-lg border border-zinc-300 shadow">
+      <h2 class=" rounded-t-lg bg-zinc-300 px-4 py-2 capitalize">{subject}</h2>
+      <div class="-mt-11 p-4">
+        <.table
+          id="classes"
+          rows={classes}
+          row_click={&JS.navigate(~p"/schedules/#{@schedule}/classes/#{&1}")}
+        >
+          <:col :let={class} label="Code">{class.code}</:col>
+          <:col :let={class} label="Section">{class.section}</:col>
+          <:col :let={class} label="Schedule">{class.schedule}</:col>
+        </.table>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<.back navigate={~p"/schedules/#{@schedule}"}>Back to schedule details</.back>

@@ -22,7 +22,9 @@ defmodule SchedopWeb.Router do
     resources "/terms", TermController
     post "/populate_terms", TermController, :populate
 
-    resources "/schedules", ScheduleController
+    resources "/schedules", ScheduleController do
+      resources "/classes", ScheduleClassController, only: [:index, :create, :show]
+    end
 
     resources "/classes", ClassController
   end
