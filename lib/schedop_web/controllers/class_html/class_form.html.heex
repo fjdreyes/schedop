@@ -1,0 +1,27 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+  <.input field={f[:code]} type="number" label="Code" />
+  <.input field={f[:name]} type="text" label="Name" />
+  <.input field={f[:section]} type="text" label="Section" />
+  <.input field={f[:description]} type="text" label="Description" />
+  <.input field={f[:units]} type="number" label="Units" />
+  <.input field={f[:schedule]} type="text" label="Schedule" />
+  <.input field={f[:instructor]} type="text" label="Instructor" />
+  <.input field={f[:remarks]} type="text" label="Remarks" />
+  <.input field={f[:department]} type="text" label="Department" />
+  <.input field={f[:slots_total]} type="number" label="Slots total" />
+  <.input field={f[:slots_available]} type="number" label="Slots available" />
+  <.input field={f[:demand]} type="number" label="Demand" />
+  <.input field={f[:restrictions]} type="text" label="Restrictions" />
+  <.input
+    field={f[:term_id]}
+    type="select"
+    label="Term"
+    options={Schedop.Terms.terms_for_form_options()}
+  />
+  <:actions>
+    <.button>Save Class</.button>
+  </:actions>
+</.simple_form>
