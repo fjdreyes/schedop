@@ -171,6 +171,8 @@ defmodule Schedop.Classes do
       |> String.split("\n", trim: true)
       |> Enum.map(&String.trim/1)
 
+    time_blocks = parse_time_blocks(schedule)
+
     department =
       row
       |> Floki.find("td:nth-child(5)")
@@ -219,6 +221,7 @@ defmodule Schedop.Classes do
       description: description,
       units: units,
       schedule: schedule,
+      time_blocks: time_blocks,
       instructor: instructor,
       remarks: remarks,
       department: department,
@@ -228,6 +231,59 @@ defmodule Schedop.Classes do
       restrictions: restrictions,
       term_id: term_id
     }
+  end
+
+  defp parse_time_blocks(schedule) do
+    schedule
+    |> String.split("; ")
+    |> Enum.map(&parse_time_block/1)
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp parse_time_block(time_block) do
+    case String.split(time_block, " ", parts: 3) do
+      [s_days, s_times, room] ->
+        days = Regex.scan(~r/Th|Su|M|T|W|F|S/, s_days) |> Enum.map(&hd/1)
+
+        {start_time, end_time} = parse_times(s_times)
+
+        %{
+          days: days,
+          start_time: start_time,
+          end_time: end_time,
+          room: room
+        }
+
+      _ ->
+        nil
+    end
+  end
+
+  defp parse_times(times) do
+    case Regex.run(~r/^(\d{1,2})(?::(\d{2}))?(AM|PM)?-(\d{1,2})(?::(\d{2}))?(AM|PM)$/, times) do
+      [_, h1, m1, "", h2, m2, ampm2] ->
+        {to_minutes(h1, m1, ampm2), to_minutes(h2, m2, ampm2)}
+
+      [_, h1, m1, ampm1, h2, m2, ampm2] ->
+        {to_minutes(h1, m1, ampm1), to_minutes(h2, m2, ampm2)}
+    end
+  end
+
+  defp to_minutes(hour, "", ampm) do
+    to_minutes(hour, "00", ampm)
+  end
+
+  defp to_minutes(hour, minute, ampm) do
+    hour = String.to_integer(hour)
+    minute = String.to_integer(minute)
+
+    hour =
+      case ampm do
+        "PM" -> hour + 12
+        "AM" -> hour
+      end
+
+    hour * 60 + minute
   end
 
   defp filter_classes(classes, subject) do

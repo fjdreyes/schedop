@@ -9,6 +9,7 @@ defmodule Schedop.Classes.Class do
     field :description, :string
     field :units, :integer
     field :schedule, :string
+    field :time_blocks, {:array, :map}
     field :instructor, :string
     field :remarks, :string
     field :department, :string
@@ -31,6 +32,7 @@ defmodule Schedop.Classes.Class do
       :description,
       :units,
       :schedule,
+      :time_blocks,
       :instructor,
       :remarks,
       :department,
