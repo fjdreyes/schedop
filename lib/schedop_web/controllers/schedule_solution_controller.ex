@@ -22,12 +22,24 @@ defmodule SchedopWeb.ScheduleSolutionController do
     render(conn, "random_available.html", schedule: schedule, classes: classes)
   end
 
+  defp render_solution(conn, "backtracking", schedule) do
+    {status, classes} = backtracking(schedule.subjects)
+
+    render(conn, "backtracking.html", schedule: schedule, classes: classes, status: status)
+  end
+
   defp first_available(subjects) do
     find_available(subjects)
   end
 
   defp random_available(subjects) do
     find_available(subjects, &Enum.shuffle/1)
+  end
+
+  defp backtracking(subjects) do
+    subjects
+    |> sort_by_class_count()
+    |> find_by_backtracking()
   end
 
   defp find_available(subjects, strategy \\ & &1) do
@@ -47,6 +59,55 @@ defmodule SchedopWeb.ScheduleSolutionController do
       end
     end)
     |> Enum.reverse()
+  end
+
+  defp sort_by_class_count(subjects) do
+    subjects
+    |> Enum.map(fn subject -> {subject, Classes.count_classes_by_name(subject)} end)
+    |> Enum.sort_by(fn {_subject, count} -> count end)
+    |> Enum.map(fn {subject, _count} -> subject end)
+  end
+
+  defp find_by_backtracking(subjects) do
+    {status, classes} = backtrack(subjects, [], 0, [])
+    {status, Enum.reverse(classes)}
+  end
+
+  defp backtrack(subjects, selected, index, _longest) when index == length(subjects),
+    do: {:ok, selected}
+
+  defp backtrack(subjects, selected, index, longest) do
+    classes =
+      subjects
+      |> Enum.at(index)
+      |> Classes.list_classes_by_name()
+      |> Enum.shuffle()
+
+    Enum.reduce(classes, {:partial, longest}, fn class, acc ->
+      if Enum.any?(selected, &class_conflict?(class, &1)) do
+        acc
+      else
+        case backtrack(
+               subjects,
+               [class | selected],
+               index + 1,
+               update_longest(acc, [class | selected])
+             ) do
+          {:ok, result} -> throw({:ok, result})
+          {:partial, new_longest} -> {:partial, update_longest(acc, new_longest)}
+        end
+      end
+    end)
+  catch
+    {:ok, result} -> {:ok, result}
+  end
+
+  defp update_longest({_, longest}, candidate) do
+    if length(candidate) > length(longest) do
+      candidate
+    else
+      longest
+    end
   end
 
   defp class_conflict?(class1, class2) do

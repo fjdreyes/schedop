@@ -22,9 +22,20 @@ defmodule Schedop.Classes do
   end
 
   def list_classes_by_name(name) do
+    name
+    |> classes_by_name_query()
+    |> Repo.all()
+  end
+
+  def count_classes_by_name(name) do
+    name
+    |> classes_by_name_query()
+    |> Repo.aggregate(:count, :id)
+  end
+
+  defp classes_by_name_query(name) do
     Class
     |> where([c], fragment("LOWER(?)", c.name) == ^name)
-    |> Repo.all()
   end
 
   @doc """

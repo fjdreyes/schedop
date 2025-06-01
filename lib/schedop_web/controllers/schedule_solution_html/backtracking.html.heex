@@ -1,0 +1,16 @@
+<SchedopWeb.ScheduleHTML.schedule_tabs current_tab="backtracking" schedule={@schedule} />
+
+<.header>
+  Random Available Classes with Backtracking for Schedule {@schedule.id}
+  <:subtitle>
+    These are the random available classes with backtracking for your chosen subjects.
+  </:subtitle>
+</.header>
+
+<.error :if={@status == :partial}>
+  There is no solution that can include all of your chosen subjects. This is one solution with the most number of classes.
+</.error>
+
+<.classes schedule={@schedule} classes={@classes} />
+
+<.back navigate={~p"/schedules/#{@schedule}"}>Back to schedule details</.back>
