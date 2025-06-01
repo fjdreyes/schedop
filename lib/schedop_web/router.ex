@@ -24,6 +24,7 @@ defmodule SchedopWeb.Router do
 
     resources "/schedules", ScheduleController do
       resources "/classes", ScheduleClassController, only: [:index, :create, :show]
+      resources "/solutions", ScheduleSolutionController, only: [:show]
     end
 
     resources "/classes", ClassController

@@ -1,0 +1,21 @@
+<SchedopWeb.ScheduleHTML.schedule_tabs current_tab="first_available" schedule={@schedule} />
+
+<.header>
+  First Available Classes for Schedule {@schedule.id}
+  <:subtitle>
+    These are the first available classes for your chosen subjects.
+  </:subtitle>
+</.header>
+
+<.table
+  id="classes"
+  rows={@classes}
+  row_click={&JS.navigate(~p"/schedules/#{@schedule}/classes/#{&1}")}
+>
+  <:col :let={class} label="Code">{class.code}</:col>
+  <:col :let={class} label="Name">{class.name}</:col>
+  <:col :let={class} label="Section">{class.section}</:col>
+  <:col :let={class} label="Schedule">{class.schedule}</:col>
+</.table>
+
+<.back navigate={~p"/schedules/#{@schedule}"}>Back to schedule details</.back>
