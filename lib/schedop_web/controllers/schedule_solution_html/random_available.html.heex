@@ -1,0 +1,12 @@
+<SchedopWeb.ScheduleHTML.schedule_tabs current_tab="random_available" schedule={@schedule} />
+
+<.header>
+  Random Available Classes for Schedule {@schedule.id}
+  <:subtitle>
+    These are the random available classes for your chosen subjects.
+  </:subtitle>
+</.header>
+
+<.classes schedule={@schedule} classes={@classes} />
+
+<.back navigate={~p"/schedules/#{@schedule}"}>Back to schedule details</.back>

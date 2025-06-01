@@ -16,9 +16,23 @@ defmodule SchedopWeb.ScheduleSolutionController do
     render(conn, "first_available.html", schedule: schedule, classes: classes)
   end
 
+  defp render_solution(conn, "random_available", schedule) do
+    classes = random_available(schedule.subjects)
+
+    render(conn, "random_available.html", schedule: schedule, classes: classes)
+  end
+
   defp first_available(subjects) do
+    find_available(subjects)
+  end
+
+  defp random_available(subjects) do
+    find_available(subjects, &Enum.shuffle/1)
+  end
+
+  defp find_available(subjects, strategy \\ & &1) do
     Enum.reduce(subjects, [], fn subject, acc ->
-      classes = Classes.list_classes_by_name(subject)
+      classes = Classes.list_classes_by_name(subject) |> strategy.()
 
       case Enum.find(classes, fn class ->
              Enum.all?(acc, fn selected ->

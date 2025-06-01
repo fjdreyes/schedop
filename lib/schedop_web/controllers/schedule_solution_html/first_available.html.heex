@@ -7,15 +7,6 @@
   </:subtitle>
 </.header>
 
-<.table
-  id="classes"
-  rows={@classes}
-  row_click={&JS.navigate(~p"/schedules/#{@schedule}/classes/#{&1}")}
->
-  <:col :let={class} label="Code">{class.code}</:col>
-  <:col :let={class} label="Name">{class.name}</:col>
-  <:col :let={class} label="Section">{class.section}</:col>
-  <:col :let={class} label="Schedule">{class.schedule}</:col>
-</.table>
+<.classes schedule={@schedule} classes={@classes} />
 
 <.back navigate={~p"/schedules/#{@schedule}"}>Back to schedule details</.back>
