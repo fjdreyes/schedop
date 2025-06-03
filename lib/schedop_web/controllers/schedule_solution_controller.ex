@@ -28,6 +28,17 @@ defmodule SchedopWeb.ScheduleSolutionController do
     render(conn, "backtracking.html", schedule: schedule, classes: classes, status: status)
   end
 
+  defp render_solution(conn, "map", schedule) do
+    {status, classes} = backtracking(schedule.subjects)
+
+    render(conn, "map.html",
+      schedule: schedule,
+      classes: classes,
+      status: status,
+      nodes: nodes_for_classes(classes)
+    )
+  end
+
   defp first_available(subjects) do
     find_available(subjects)
   end
@@ -128,5 +139,25 @@ defmodule SchedopWeb.ScheduleSolutionController do
         block1["start_time"] < block2["end_time"]
 
     day_conflict and time_conflict
+  end
+
+  defp nodes_for_classes(classes) do
+    classes
+    |> Enum.map(&class_with_location/1)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.map(fn location ->
+      [location.class.name, location.longitude, location.latitude]
+    end)
+    |> Jason.encode!()
+  end
+
+  defp class_with_location(class) do
+    case class.department do
+      "DCS" -> %{class: class, longitude: 121.068612, latitude: 14.648567}
+      "DECL" -> %{class: class, longitude: 121.066171, latitude: 14.652766}
+      "MATH" -> %{class: class, longitude: 121.071421, latitude: 14.6486}
+      "NIP" -> %{class: class, longitude: 121.07308, latitude: 14.649019}
+      _ -> nil
+    end
   end
 end

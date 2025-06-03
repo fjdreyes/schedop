@@ -1,0 +1,21 @@
+<SchedopWeb.ScheduleHTML.schedule_tabs current_tab="map" schedule={@schedule} />
+
+<div
+  id="map"
+  class="h-[36rem] w-full overflow-hidden rounded-lg border border-zinc-200"
+  data-nodes={@nodes}
+>
+</div>
+
+<.table
+  id="classes"
+  rows={@classes}
+  row_click={&JS.navigate(~p"/schedules/#{@schedule}/classes/#{&1}")}
+>
+  <:col :let={class} label="Code">{class.code}</:col>
+  <:col :let={class} label="Name">{class.name}</:col>
+  <:col :let={class} label="Department">{class.department}</:col>
+  <:col :let={class} label="Schedule">{class.schedule}</:col>
+</.table>
+
+<.back navigate={~p"/schedules/#{@schedule}"}>Back to schedule details</.back>
