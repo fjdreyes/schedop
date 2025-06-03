@@ -60,6 +60,12 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :schedop,
+  openrouteservice_url:
+    System.get_env("OPENROUTESERVICE_URL") ||
+      "https://api.openrouteservice.org/v2/directions/foot-walking/geojson",
+  openrouteservice_api_key: System.get_env("OPENROUTESERVICE_API_KEY")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

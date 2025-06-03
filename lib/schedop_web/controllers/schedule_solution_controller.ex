@@ -35,7 +35,14 @@ defmodule SchedopWeb.ScheduleSolutionController do
       schedule: schedule,
       classes: classes,
       status: status,
-      nodes: nodes_for_classes(classes)
+      nodes:
+        classes
+        |> nodes_for_classes()
+        |> Jason.encode!(),
+      paths:
+        classes
+        |> paths_for_classes()
+        |> Jason.encode!()
     )
   end
 
@@ -148,7 +155,21 @@ defmodule SchedopWeb.ScheduleSolutionController do
     |> Enum.map(fn location ->
       [location.class.name, location.longitude, location.latitude]
     end)
-    |> Jason.encode!()
+  end
+
+  defp paths_for_classes(classes) do
+    nodes = nodes_for_classes(classes) |> Enum.map(&Enum.slice(&1, 1..2)) |> Enum.with_index()
+
+    Enum.reduce(nodes, [], fn {node1, index1}, acc1 ->
+      Enum.reduce(nodes, [], fn {node2, index2}, acc2 ->
+        if index1 != index2 do
+          [[node1, node2] | acc2]
+        else
+          acc2
+        end
+      end)
+      |> Enum.concat(acc1)
+    end)
   end
 
   defp class_with_location(class) do

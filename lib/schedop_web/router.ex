@@ -31,9 +31,15 @@ defmodule SchedopWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", SchedopWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", SchedopWeb do
+    pipe_through :api
+
+    resources "/paths", PathController, except: [:new, :edit]
+
+    get "/paths/geojson/:from_longitude/:from_latitude/:to_longitude/:to_latitude",
+        PathController,
+        :geojson
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:schedop, :dev_routes) do

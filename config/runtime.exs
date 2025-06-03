@@ -65,6 +65,12 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  config :schedop,
+    openrouteservice_url:
+      System.get_env("OPENROUTESERVICE_URL") ||
+        "https://api.openrouteservice.org/v2/directions/foot-walking/geojson",
+    openrouteservice_api_key: System.get_env("OPENROUTESERVICE_API_KEY")
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key
