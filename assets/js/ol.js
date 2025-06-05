@@ -10,11 +10,13 @@ const viewCenter = fromLonLat([121.066761, 14.654147]);
 const viewZoom = 15.8;
 const xyzSourceUrl = "https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
-const nodesSource = new VectorSource();
+const vectorSource = new VectorSource();
+const format = new GeoJSON();
 
 const nodesStyle = new Style({
   stroke: new Stroke({
     color: "rgb(255, 0, 0)",
+    width: 2,
   }),
   fill: new Fill({
     color: "rgba(255, 255, 0, 0.5)",
@@ -24,7 +26,21 @@ const nodesStyle = new Style({
       color: "rgb(255, 255, 255)",
       width: 5,
     }),
-    offsetY: 15,
+  }),
+});
+
+const pathsStyle = new Style({
+  stroke: new Stroke({
+    color: "rgb(255, 0, 255, 0.8)",
+    width: 2,
+  }),
+  text: new Text({
+    stroke: new Stroke({
+      color: "rgb(255, 255, 255)",
+      width: 5,
+    }),
+    maxAngle: 0.26179939,
+    placement: "line",
   }),
 });
 
@@ -41,10 +57,22 @@ const map = new Map({
       }),
     }),
     new VectorLayer({
-      source: nodesSource,
+      source: vectorSource,
       style: function (feature) {
-        nodesStyle.getText().setText(feature.get("name"));
-        return nodesStyle;
+        if (feature.getGeometry().getType() === "Circle") {
+          nodesStyle.getText().setText(feature.get("name"));
+          return nodesStyle;
+        } else if (feature.getGeometry().getType() === "LineString") {
+          const pathDuration = feature.getProperties()?.summary?.duration;
+          if (!!pathDuration) {
+            const pathMinutes = Math.floor(pathDuration / 60);
+            const pathSeconds = `${pathMinutes % 60}`.padStart(2, "0");
+            const pathText = `${pathMinutes}:${pathSeconds}`;
+            pathsStyle.getText().setText(pathText);
+          }
+          return pathsStyle;
+        }
+        return null;
       },
     }),
   ],
@@ -53,39 +81,28 @@ const map = new Map({
 function createFeature(name, lon, lat) {
   return new Feature({
     name: name,
-    geometry: new Circle(fromLonLat([lon, lat]), 15),
+    geometry: new Circle(fromLonLat([lon, lat]), 20),
   });
 }
 
 function populateNodes(nodesElement) {
-  const nodes = JSON.parse(nodesElement);
-  nodes.forEach((node) => {
-    const feature = createFeature(node[0], node[1], node[2]);
-    nodesSource.addFeature(feature);
+  JSON.parse(nodesElement).forEach((node) => {
+    vectorSource.addFeature(createFeature(node[0], node[1], node[2]));
   });
 }
 
-const pathsStyle = new Style({
-  stroke: new Stroke({
-    color: "rgb(255, 0, 255)",
-    width: 2,
-  }),
-});
-
 function populatePaths(pathsElement) {
-  const paths = JSON.parse(pathsElement);
-  paths.forEach((path) => {
-    const vectorSource = new VectorSource({
-      url: `/api/paths/geojson/${path[0][0]}/${path[0][1]}/${path[1][0]}/${path[1][1]}`,
-      format: new GeoJSON(),
-    });
-
-    const vectorLayer = new VectorLayer({
-      source: vectorSource,
-      style: pathsStyle,
-    });
-
-    map.addLayer(vectorLayer);
+  JSON.parse(pathsElement).forEach((path) => {
+    const url = `/api/paths/geojson/${path[0][0]}/${path[0][1]}/${path[1][0]}/${path[1][1]}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        vectorSource.addFeatures(
+          format.readFeatures(data, {
+            featureProjection: "EPSG:3857",
+          }),
+        );
+      });
   });
 }
 
