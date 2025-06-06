@@ -3,6 +3,7 @@ defmodule SchedopWeb.ScheduleSolutionController do
 
   alias Schedop.Schedules
   alias Schedop.Classes
+  alias Schedop.Paths
 
   def show(conn, %{"schedule_id" => schedule_id, "id" => solution}) do
     schedule = Schedules.get_schedule!(schedule_id)
@@ -43,6 +44,17 @@ defmodule SchedopWeb.ScheduleSolutionController do
         classes
         |> paths_for_classes()
         |> Jason.encode!()
+    )
+  end
+
+  defp render_solution(conn, "graph", schedule) do
+    {status, classes} = backtracking(schedule.subjects)
+
+    render(conn, "graph.html",
+      schedule: schedule,
+      classes: classes,
+      status: status,
+      table: classes |> table_for_classes()
     )
   end
 
@@ -172,6 +184,29 @@ defmodule SchedopWeb.ScheduleSolutionController do
     end)
   end
 
+  defp table_for_classes(classes) do
+    nodes = nodes_for_classes(classes)
+    nodes_with_index = Enum.with_index(nodes)
+
+    table =
+      Enum.reduce(nodes_with_index, [], fn {node1, index1}, acc1 ->
+        row =
+          Enum.reduce(nodes_with_index, [], fn {node2, index2}, acc2 ->
+            if index1 != index2 do
+              [weight_for_classes(node1, node2) | acc2]
+            else
+              [0 | acc2]
+            end
+          end)
+          |> Enum.reverse()
+
+        [[List.first(node1) | row] | acc1]
+      end)
+      |> Enum.reverse()
+
+    [["" | Enum.map(nodes, &List.first/1)] | table]
+  end
+
   defp class_with_location(class) do
     case class.department do
       "DCS" -> %{class: class, longitude: 121.068612, latitude: 14.648567}
@@ -179,6 +214,27 @@ defmodule SchedopWeb.ScheduleSolutionController do
       "MATH" -> %{class: class, longitude: 121.071421, latitude: 14.6486}
       "NIP" -> %{class: class, longitude: 121.07308, latitude: 14.649019}
       _ -> nil
+    end
+  end
+
+  defp weight_for_classes([_, from_longitude, from_latitude], [_, to_longitude, to_latitude])
+       when from_latitude == to_latitude and from_longitude == to_longitude do
+    0
+  end
+
+  defp weight_for_classes([_, from_longitude, from_latitude], [_, to_longitude, to_latitude]) do
+    case Paths.get_path_by_longitude_latitude(
+           Float.to_string(from_longitude),
+           Float.to_string(from_latitude),
+           Float.to_string(to_longitude),
+           Float.to_string(to_latitude)
+         ) do
+      {:ok,
+       %{geojson: %{"features" => [%{"properties" => %{"summary" => %{"duration" => duration}}}]}}} ->
+        duration
+
+      _ ->
+        "error"
     end
   end
 end

@@ -1,0 +1,36 @@
+<SchedopWeb.ScheduleHTML.schedule_tabs current_tab="graph" schedule={@schedule} />
+
+<.header>
+  Graph Representation for Schedule {@schedule.id}
+  <:subtitle>
+    These are the random available classes with backtracking for your chosen subjects in a graph
+    format. The walking time for each class to another is shown below.
+  </:subtitle>
+</.header>
+
+<.error :if={@status == :partial}>
+  There is no solution that can include all of your chosen subjects. This is one solution with the most number of classes.
+</.error>
+
+<.table id="classes" rows={@table}>
+  <:col :let={col} :for={j <- 0..length(@table)}>{Enum.at(col, j)}</:col>
+</.table>
+
+<div class="mt-12">
+  <.header>
+    Ideal Flow
+    <:subtitle>
+      You can copy the following text to compute for the Ideal Flow Network on
+      <a
+        href="https://people.revoledu.com/kardi/tutorial/IFN/Capacity2IdealFlow.html"
+        target="_blank"
+        class="text-sky-600 hover:text-sky-800"
+      >
+        IFN Lab at Revoledu.
+      </a>
+    </:subtitle>
+  </.header>
+  <pre class="mt-4 rounded border bg-zinc-100 p-4">{Enum.join(Enum.map(Enum.drop(@table, 1), &Enum.join(Enum.drop(&1, 1), ",")), ";\n")}</pre>
+</div>
+
+<.back navigate={~p"/schedules/#{@schedule}"}>Back to schedule details</.back>
